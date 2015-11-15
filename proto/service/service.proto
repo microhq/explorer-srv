@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+message Service {
+	string id = 1;
+	string name = 2;
+	string owner = 3;
+	string description = 4;
+	int64 created = 5;
+	int64 updated = 6;
+	map<string, string> metadata = 7;
+}
+
+message CreateRequest {
+	Service service = 1;
+}
+
+message CreateResponse {
+}
+
+message DeleteRequest {
+	string id = 1;
+}
+
+message DeleteResponse {
+}
+
+message ReadRequest {
+	string id = 1;
+}
+
+message ReadResponse {
+	Service service = 1;
+}
+
+message UpdateRequest {
+	Service service = 1;
+}
+
+message UpdateResponse {
+}
+
+message SearchRequest {
+	string name = 1;
+	string owner = 2;
+	int64 limit = 3;
+	int64 offset = 4;
+}
+
+message SearchResponse {
+	repeated Service services = 1;
+}
