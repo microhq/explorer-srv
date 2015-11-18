@@ -5,11 +5,11 @@ import (
 	"encoding/base64"
 	"time"
 
-	"golang.org/x/net/context"
-	"golang.org/x/crypto/bcrypt"
-	"github.com/myodc/go-micro/errors"
-	"github.com/myodc/explorer-srv/user/db"
 	user "github.com/myodc/explorer-srv/proto/user"
+	"github.com/myodc/explorer-srv/user/db"
+	"github.com/myodc/go-micro/errors"
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/net/context"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	alphanum      = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 )
 
 func random(i int) string {
@@ -50,15 +50,15 @@ func (s *User) Read(ctx context.Context, req *user.ReadRequest, rsp *user.ReadRe
 		return err
 	}
 	rsp.User = user
-        return nil
+	return nil
 }
 
 func (s *User) Update(ctx context.Context, req *user.UpdateRequest, rsp *user.UpdateResponse) error {
-        return db.Update(req.User)
+	return db.Update(req.User)
 }
 
 func (s *User) Delete(ctx context.Context, req *user.DeleteRequest, rsp *user.DeleteResponse) error {
-        return db.Delete(req.Id)
+	return db.Delete(req.Id)
 }
 
 func (s *User) Search(ctx context.Context, req *user.SearchRequest, rsp *user.SearchResponse) error {
@@ -86,10 +86,10 @@ func (s *User) Login(ctx context.Context, req *user.LoginRequest, rsp *user.Logi
 	}
 	// save session
 	sess := &user.Session{
-		Id: random(128),
+		Id:       random(128),
 		Username: req.Username,
-		Created: time.Now().Unix(),
-		Expires: time.Now().Add(time.Hour * 24 * 7).Unix(),
+		Created:  time.Now().Unix(),
+		Expires:  time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}
 
 	if err := db.CreateSession(sess); err != nil {
@@ -109,5 +109,5 @@ func (s *User) ReadSession(ctx context.Context, req *user.ReadSessionRequest, rs
 		return err
 	}
 	rsp.Session = sess
-        return nil
+	return nil
 }

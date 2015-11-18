@@ -1,18 +1,18 @@
 package db
 
 import (
-	"errors"
 	"database/sql"
+	"errors"
 	"time"
 
-	log "github.com/golang/glog"
 	_ "github.com/cockroachdb/cockroach/sql/driver"
+	log "github.com/golang/glog"
 	srv "github.com/myodc/explorer-srv/proto/profile"
 )
 
 var (
-	db *sql.DB
-	url = "http://root@192.168.99.100:26257"
+	db            *sql.DB
+	url           = "http://root@192.168.99.100:26257"
 	profileSchema = `CREATE TABLE IF NOT EXISTS profiles (
 id varchar(255) primary key,
 name varchar(255),
@@ -25,18 +25,17 @@ location varchar(255),
 created integer,
 updated integer,
 unique (name));`
-	q = map[string]string {
+	q = map[string]string{
 		"delete": "DELETE from explorer.profiles where id = $1",
 		"create": `INSERT into explorer.profiles (
 				id, name, owner, type, display_name, blurb, url, location, created, updated) 
 				values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-		"update": "UPDATE explorer.profiles set name = $2, owner = $3, type = $4, display_name = $5, blurb = $6, url = $7, location = $8, updated = $9 where id = $1",
-		"read": "SELECT * from explorer.profiles where id = $1",
-		"list": "SELECT * from explorer.profiles limit $1 offset $2",
-		"searchName": "SELECT * from explorer.profiles where name = $1",
-		"searchOwner": "SELECT * from explorer.profiles where owner = $1",
+		"update":             "UPDATE explorer.profiles set name = $2, owner = $3, type = $4, display_name = $5, blurb = $6, url = $7, location = $8, updated = $9 where id = $1",
+		"read":               "SELECT * from explorer.profiles where id = $1",
+		"list":               "SELECT * from explorer.profiles limit $1 offset $2",
+		"searchName":         "SELECT * from explorer.profiles where name = $1",
+		"searchOwner":        "SELECT * from explorer.profiles where owner = $1",
 		"searchNameAndOwner": "SELECT * from explorer.profiles where name = $1 and owner = $2",
-
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -45,19 +44,19 @@ func init() {
 	var d *sql.DB
 	var err error
 
-        if d, err = sql.Open("cockroach", url); err != nil {
-                log.Fatal(err)
-        }
-        if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if d, err = sql.Open("cockroach", url); err != nil {
 		log.Fatal(err)
-        }
-        d.Close()
-        if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
-                log.Fatal(err)
-        }
-        if _, err = d.Exec(profileSchema); err != nil {
-                log.Fatal(err)
-        }
+	}
+	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+		log.Fatal(err)
+	}
+	d.Close()
+	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+		log.Fatal(err)
+	}
+	if _, err = d.Exec(profileSchema); err != nil {
+		log.Fatal(err)
+	}
 	db = d
 
 	for query, statement := range q {
@@ -73,7 +72,7 @@ func Create(profile *srv.Profile) error {
 	profile.Created = time.Now().Unix()
 	profile.Updated = time.Now().Unix()
 	_, err := st["create"].Exec(profile.Id, profile.Name, profile.Owner, profile.Type, profile.DisplayName,
-					profile.Blurb, profile.Url, profile.Location, profile.Created, profile.Updated)
+		profile.Blurb, profile.Url, profile.Location, profile.Created, profile.Updated)
 	return err
 }
 
@@ -85,7 +84,7 @@ func Delete(id string) error {
 func Update(profile *srv.Profile) error {
 	profile.Updated = time.Now().Unix()
 	_, err := st["update"].Exec(profile.Id, profile.Name, profile.Owner, profile.Type, profile.DisplayName,
-					profile.Blurb, profile.Url, profile.Location, profile.Updated)
+		profile.Blurb, profile.Url, profile.Location, profile.Updated)
 	return err
 }
 
@@ -94,8 +93,8 @@ func Read(id string) (*srv.Profile, error) {
 
 	r := st["read"].QueryRow(id)
 	if err := r.Scan(&profile.Id, &profile.Name, &profile.Owner, &profile.Type, &profile.DisplayName,
-			&profile.Blurb, &profile.Url, &profile.Location,
-			&profile.Created, &profile.Updated); err != nil {
+		&profile.Blurb, &profile.Url, &profile.Location,
+		&profile.Created, &profile.Updated); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("not found")
 		}
@@ -129,8 +128,8 @@ func Search(name, owner string, limit, offset int64) ([]*srv.Profile, error) {
 	for r.Next() {
 		profile := &srv.Profile{}
 		if err := r.Scan(&profile.Id, &profile.Name, &profile.Owner, &profile.Type, &profile.DisplayName,
-				&profile.Blurb, &profile.Url, &profile.Location,
-				&profile.Created, &profile.Updated); err != nil {
+			&profile.Blurb, &profile.Url, &profile.Location,
+			&profile.Created, &profile.Updated); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, errors.New("not found")
 			}

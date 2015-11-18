@@ -1,18 +1,18 @@
 package db
 
 import (
-	"errors"
 	"database/sql"
+	"errors"
 	"time"
 
-	log "github.com/golang/glog"
 	_ "github.com/cockroachdb/cockroach/sql/driver"
+	log "github.com/golang/glog"
 	user "github.com/myodc/explorer-srv/proto/user"
 )
 
 var (
-	db *sql.DB
-	url = "http://root@192.168.99.100:26257"
+	db         *sql.DB
+	url        = "http://root@192.168.99.100:26257"
 	userSchema = `CREATE TABLE IF NOT EXISTS users (
 id varchar(255) primary key,
 username varchar(255),
@@ -28,22 +28,22 @@ id varchar(255) primary key,
 username varchar(255),
 created integer,
 expires integer);`
-	q = map[string]string {
+	q = map[string]string{
 		"delete": "DELETE from explorer.users where id = $1",
 		"create": `INSERT into explorer.users (
 				id, username, email, salt, password, created, updated) 
 				values ($1, $2, $3, $4, $5, $6, $7)`,
-		"update": "UPDATE explorer.users set username = $2, email = $2, updated = $3 where id = $1",
-		"read": "SELECT * from explorer.users where id = $1",
-		"list": "SELECT * from explorer.users limit $1 offset $2",
-		"searchUsername": "SELECT * from explorer.users where username = $1 limit 1",
-		"searchEmail": "SELECT * from explorer.users where email = $1 limit 1",
+		"update":                 "UPDATE explorer.users set username = $2, email = $2, updated = $3 where id = $1",
+		"read":                   "SELECT * from explorer.users where id = $1",
+		"list":                   "SELECT * from explorer.users limit $1 offset $2",
+		"searchUsername":         "SELECT * from explorer.users where username = $1 limit 1",
+		"searchEmail":            "SELECT * from explorer.users where email = $1 limit 1",
 		"searchUsernameAndEmail": "SELECT * from explorer.users where username = $1 and email = $2 limit 1",
 
 		// users.sessions
 		"createSession": "INSERT into explorer.sessions (id, username, created, expires) values ($1, $2, $3, $4)",
 		"deleteSession": "DELETE from explorer.sessions where id = $1",
-		"readSession": "SELECT * from explorer.sessions where id = $1",
+		"readSession":   "SELECT * from explorer.sessions where id = $1",
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -52,22 +52,22 @@ func init() {
 	var d *sql.DB
 	var err error
 
-        if d, err = sql.Open("cockroach", url); err != nil {
-                log.Fatal(err)
-        }
-        if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if d, err = sql.Open("cockroach", url); err != nil {
 		log.Fatal(err)
-        }
-        d.Close()
-        if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
-                log.Fatal(err)
-        }
-        if _, err = d.Exec(userSchema); err != nil {
-                log.Fatal(err)
-        }
-        if _, err = d.Exec(sessionSchema); err != nil {
-                log.Fatal(err)
-        }
+	}
+	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+		log.Fatal(err)
+	}
+	d.Close()
+	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+		log.Fatal(err)
+	}
+	if _, err = d.Exec(userSchema); err != nil {
+		log.Fatal(err)
+	}
+	if _, err = d.Exec(sessionSchema); err != nil {
+		log.Fatal(err)
+	}
 	db = d
 
 	for query, statement := range q {

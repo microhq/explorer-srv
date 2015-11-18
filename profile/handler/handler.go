@@ -19,15 +19,15 @@ func (s *Profile) Read(ctx context.Context, req *prf.ReadRequest, rsp *prf.ReadR
 		return err
 	}
 	rsp.Profile = profile
-        return nil
+	return nil
 }
 
 func (s *Profile) Update(ctx context.Context, req *prf.UpdateRequest, rsp *prf.UpdateResponse) error {
-        return db.Update(req.Profile)
+	return db.Update(req.Profile)
 }
 
 func (s *Profile) Delete(ctx context.Context, req *prf.DeleteRequest, rsp *prf.DeleteResponse) error {
-        return db.Delete(req.Id)
+	return db.Delete(req.Id)
 }
 
 func (s *Profile) Search(ctx context.Context, req *prf.SearchRequest, rsp *prf.SearchResponse) error {

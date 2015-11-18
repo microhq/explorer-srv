@@ -7,7 +7,45 @@ message Service {
 	string description = 4;
 	int64 created = 5;
 	int64 updated = 6;
-	map<string, string> metadata = 7;
+	string url = 7;
+	string readme = 8;
+	map<string, string> metadata = 9;
+}
+
+message Version {
+	string id = 1;
+	string serviceId = 2;
+	string version = 3; // e.g 1.0.0 or 20110130
+	int64 created = 4;
+	int64 updated = 5;
+	API api = 6;
+	repeated Source sources = 7;
+	repeated Dependency dependencies = 8;
+	map<string, string> metadata = 9;
+}
+
+message API {
+	Endpoint endpoints = 1;
+	map<string, string> metadata = 2;
+}
+
+message Endpoint {
+	string name = 1; // method Say.Hello
+	map<string, string> request = 2; // key = type, value = data
+	map<string, string> response = 3; // key = type, value = data
+	map<string, string> metadata = 4; // description, stream=true, topic=true
+}
+
+message Dependency {
+	string name = 1;
+	string type = 2;
+	map<string, string> metadata = 3;
+}
+
+message Source {
+	string name = 1;
+	string type = 2;
+	map<string, string> metadata = 3;
 }
 
 message CreateRequest {
@@ -44,8 +82,50 @@ message SearchRequest {
 	string owner = 2;
 	int64 limit = 3;
 	int64 offset = 4;
+	string order = 5; // asc or desc
 }
 
 message SearchResponse {
 	repeated Service services = 1;
+}
+
+// Version request/response
+message CreateVersionRequest {
+	Version version = 1;
+}
+
+message CreateVersionResponse {
+}
+
+message DeleteVersionRequest {
+	string id = 1;
+}
+
+message DeleteVersionResponse {
+}
+
+message ReadVersionRequest {
+	string id = 1;
+}
+
+message ReadVersionResponse {
+	Version version = 1;
+}
+
+message UpdateVersionRequest {
+	Version version = 1;
+}
+
+message UpdateVersionResponse {
+}
+
+message SearchVersionRequest {
+	string serviceId = 1;
+	string version = 2;
+	int64 limit = 3;
+	int64 offset = 4;
+}
+
+message SearchVersionResponse {
+	repeated Version versions = 1;
 }
