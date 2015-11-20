@@ -3,8 +3,8 @@ package handler
 import (
 	"golang.org/x/net/context"
 
-	srv "github.com/myodc/explorer-srv/proto/service"
-	"github.com/myodc/explorer-srv/service/db"
+	srv "github.com/micro/explorer-srv/proto/service"
+	"github.com/micro/explorer-srv/service/db"
 )
 
 type Service struct{}

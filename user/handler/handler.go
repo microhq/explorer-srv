@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"time"
 
-	user "github.com/myodc/explorer-srv/proto/user"
-	"github.com/myodc/explorer-srv/user/db"
-	"github.com/myodc/go-micro/errors"
+	user "github.com/micro/explorer-srv/proto/user"
+	"github.com/micro/explorer-srv/user/db"
+	"github.com/micro/go-micro/errors"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 )

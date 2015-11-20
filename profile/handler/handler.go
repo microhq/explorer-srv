@@ -3,8 +3,8 @@ package handler
 import (
 	"golang.org/x/net/context"
 
-	"github.com/myodc/explorer-srv/profile/db"
-	prf "github.com/myodc/explorer-srv/proto/profile"
+	"github.com/micro/explorer-srv/profile/db"
+	prf "github.com/micro/explorer-srv/proto/profile"
 )
 
 type Profile struct{}

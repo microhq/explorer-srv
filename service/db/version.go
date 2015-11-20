@@ -7,7 +7,7 @@ import (
 	"time"
 
 	_ "github.com/cockroachdb/cockroach/sql/driver"
-	srv "github.com/myodc/explorer-srv/proto/service"
+	srv "github.com/micro/explorer-srv/proto/service"
 )
 
 func CreateVersion(v *srv.Version) error {

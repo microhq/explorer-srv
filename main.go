@@ -2,11 +2,11 @@ package main
 
 import (
 	log "github.com/golang/glog"
-	p "github.com/myodc/explorer-srv/profile/handler"
-	s "github.com/myodc/explorer-srv/service/handler"
-	u "github.com/myodc/explorer-srv/user/handler"
-	"github.com/myodc/go-micro/cmd"
-	"github.com/myodc/go-micro/server"
+	p "github.com/micro/explorer-srv/profile/handler"
+	s "github.com/micro/explorer-srv/service/handler"
+	u "github.com/micro/explorer-srv/user/handler"
+	"github.com/micro/go-micro/cmd"
+	"github.com/micro/go-micro/server"
 )
 
 func main() {

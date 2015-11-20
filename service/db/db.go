@@ -9,7 +9,7 @@ import (
 
 	_ "github.com/cockroachdb/cockroach/sql/driver"
 	log "github.com/golang/glog"
-	srv "github.com/myodc/explorer-srv/proto/service"
+	srv "github.com/micro/explorer-srv/proto/service"
 )
 
 var (

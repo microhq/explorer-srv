@@ -7,7 +7,7 @@ import (
 
 	_ "github.com/cockroachdb/cockroach/sql/driver"
 	log "github.com/golang/glog"
-	user "github.com/myodc/explorer-srv/proto/user"
+	user "github.com/micro/explorer-srv/proto/user"
 )
 
 var (
