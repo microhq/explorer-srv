@@ -70,6 +70,39 @@ func (s *User) Search(ctx context.Context, req *user.SearchRequest, rsp *user.Se
 	return nil
 }
 
+func (s *User) UpdatePassword(ctx context.Context, req *user.UpdatePasswordRequest, rsp *user.UpdatePasswordResponse) error {
+	usr, err := db.Read(req.UserId)
+	if err != nil {
+		return errors.InternalServerError("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+
+	salt, hashed, err := db.SaltAndPassword(usr.Username, usr.Email)
+	if err != nil {
+		return errors.InternalServerError("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+
+	hh, err := base64.StdEncoding.DecodeString(hashed)
+	if err != nil {
+		return errors.InternalServerError("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+
+	if err := bcrypt.CompareHashAndPassword(hh, []byte(x+salt+req.OldPassword)); err != nil {
+		return errors.Unauthorized("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+
+	salt = random(16)
+	h, err := bcrypt.GenerateFromPassword([]byte(x+salt+req.NewPassword), 10)
+	if err != nil {
+		return errors.InternalServerError("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+	pp := base64.StdEncoding.EncodeToString(h)
+
+	if err := db.UpdatePassword(req.UserId, salt, pp); err != nil {
+		return errors.InternalServerError("go.micro.srv.explorer.updatepassword", err.Error())
+	}
+	return nil
+}
+
 func (s *User) Login(ctx context.Context, req *user.LoginRequest, rsp *user.LoginResponse) error {
 	salt, hashed, err := db.SaltAndPassword(req.Username, req.Email)
 	if err != nil {

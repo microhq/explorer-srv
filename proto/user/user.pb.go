@@ -19,6 +19,8 @@ It has these top-level messages:
 	ReadResponse
 	UpdateRequest
 	UpdateResponse
+	UpdatePasswordRequest
+	UpdatePasswordResponse
 	SearchRequest
 	SearchResponse
 	ReadSessionRequest
@@ -140,6 +142,24 @@ type UpdateResponse struct {
 func (m *UpdateResponse) Reset()         { *m = UpdateResponse{} }
 func (m *UpdateResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateResponse) ProtoMessage()    {}
+
+type UpdatePasswordRequest struct {
+	UserId          string `protobuf:"bytes,1,opt,name=userId" json:"userId,omitempty"`
+	OldPassword     string `protobuf:"bytes,2,opt,name=oldPassword" json:"oldPassword,omitempty"`
+	NewPassword     string `protobuf:"bytes,3,opt,name=newPassword" json:"newPassword,omitempty"`
+	ConfirmPassword string `protobuf:"bytes,4,opt,name=confirmPassword" json:"confirmPassword,omitempty"`
+}
+
+func (m *UpdatePasswordRequest) Reset()         { *m = UpdatePasswordRequest{} }
+func (m *UpdatePasswordRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdatePasswordRequest) ProtoMessage()    {}
+
+type UpdatePasswordResponse struct {
+}
+
+func (m *UpdatePasswordResponse) Reset()         { *m = UpdatePasswordResponse{} }
+func (m *UpdatePasswordResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdatePasswordResponse) ProtoMessage()    {}
 
 type SearchRequest struct {
 	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`

@@ -34,6 +34,7 @@ expires integer);`
 				id, username, email, salt, password, created, updated) 
 				values ($1, $2, $3, $4, $5, $6, $7)`,
 		"update":                 "UPDATE explorer.users set username = $2, email = $2, updated = $3 where id = $1",
+		"updatePassword":         "UPDATE explorer.users set salt = $2, password = $3, updated = $4 where id = $1",
 		"read":                   "SELECT * from explorer.users where id = $1",
 		"list":                   "SELECT * from explorer.users limit $1 offset $2",
 		"searchUsername":         "SELECT * from explorer.users where username = $1 limit 1",
@@ -133,7 +134,8 @@ func Read(id string) (*user.User, error) {
 	user := &user.User{}
 
 	r := st["read"].QueryRow(id)
-	if err := r.Scan(&user.Id, &user.Username, &user.Email, nil, nil, &user.Created, &user.Updated); err != nil {
+	var s, p string
+	if err := r.Scan(&user.Id, &user.Username, &user.Email, &s, &p, &user.Created, &user.Updated); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("not found")
 		}
@@ -166,7 +168,8 @@ func Search(username, email string, limit, offset int64) ([]*user.User, error) {
 
 	for r.Next() {
 		user := &user.User{}
-		if err := r.Scan(&user.Id, &user.Username, &user.Email, nil, nil, &user.Created, &user.Updated); err != nil {
+		var s, p string
+		if err := r.Scan(&user.Id, &user.Username, &user.Email, &s, &p, &user.Created, &user.Updated); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, errors.New("not found")
 			}
@@ -180,6 +183,11 @@ func Search(username, email string, limit, offset int64) ([]*user.User, error) {
 	}
 
 	return users, nil
+}
+
+func UpdatePassword(id string, salt string, password string) error {
+	_, err := st["updatePassword"].Exec(id, salt, password, time.Now().Unix())
+	return err
 }
 
 func SaltAndPassword(username, email string) (string, string, error) {

@@ -25,7 +25,7 @@ message Version {
 }
 
 message API {
-	Endpoint endpoints = 1;
+	repeated Endpoint endpoints = 1;
 	map<string, string> metadata = 2;
 }
 

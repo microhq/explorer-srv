@@ -45,6 +45,16 @@ message UpdateRequest {
 message UpdateResponse {
 }
 
+message UpdatePasswordRequest {
+	string userId = 1;
+	string oldPassword = 2;
+	string newPassword = 3;
+	string confirmPassword = 4;
+}
+
+message UpdatePasswordResponse {
+}
+
 message SearchRequest {
 	string username = 1; 
 	string email = 2; 

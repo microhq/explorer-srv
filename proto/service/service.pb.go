@@ -111,7 +111,7 @@ func (m *Version) GetMetadata() map[string]string {
 }
 
 type API struct {
-	Endpoints *Endpoint         `protobuf:"bytes,1,opt,name=endpoints" json:"endpoints,omitempty"`
+	Endpoints []*Endpoint       `protobuf:"bytes,1,rep,name=endpoints" json:"endpoints,omitempty"`
 	Metadata  map[string]string `protobuf:"bytes,2,rep,name=metadata" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 }
 
@@ -119,7 +119,7 @@ func (m *API) Reset()         { *m = API{} }
 func (m *API) String() string { return proto.CompactTextString(m) }
 func (*API) ProtoMessage()    {}
 
-func (m *API) GetEndpoints() *Endpoint {
+func (m *API) GetEndpoints() []*Endpoint {
 	if m != nil {
 		return m.Endpoints
 	}

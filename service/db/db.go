@@ -51,7 +51,7 @@ unique (service_id, version))`
 		// version
 		"createVersion":  "INSERT into explorer.service_versions (id, service_id, version, api, sources, dependencies, metadata, created, updated) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
 		"deleteVersion":  "DELETE from explorer.service_versions where id = $1",
-		"updateVersion":  "UPDATE explorer.service_versions set version = $2, api = $3, sources = $4, dependencies = $5, updated = $6, metadata = $7 where id = $1",
+		"updateVersion":  "UPDATE explorer.service_versions set version = $2, api = $3, sources = $4, dependencies = $5, metadata = $6, updated = $7 where id = $1",
 		"readVersion":    "SELECT * from explorer.service_versions where id = $1",
 		"searchVersion":  "SELECT * from explorer.service_versions where service_id = $1 and version = $2",
 		"searchVersions": "SELECT * from explorer.service_versions where service_id = $1",
