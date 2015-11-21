@@ -3,7 +3,9 @@ package main
 import (
 	log "github.com/golang/glog"
 	p "github.com/micro/explorer-srv/profile/handler"
+	se "github.com/micro/explorer-srv/search/handler"
 	s "github.com/micro/explorer-srv/service/handler"
+	t "github.com/micro/explorer-srv/token/handler"
 	u "github.com/micro/explorer-srv/user/handler"
 	"github.com/micro/go-micro/cmd"
 	"github.com/micro/go-micro/server"
@@ -31,6 +33,18 @@ func main() {
 	server.Handle(
 		server.NewHandler(
 			new(u.User),
+		),
+	)
+
+	server.Handle(
+		server.NewHandler(
+			new(t.Token),
+		),
+	)
+
+	server.Handle(
+		server.NewHandler(
+			new(se.Search),
 		),
 	)
 

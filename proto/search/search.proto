@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+message Document {
+	string index = 1;
+	string type = 2;
+	string id = 3;
+	string data = 4;
+}
+
+message CreateRequest {
+	Document document = 1;
+}
+
+message CreateResponse {
+}
+
+message DeleteRequest {
+	string index = 1;
+	string type = 2;
+	string id = 3;
+}
+
+message DeleteResponse {
+}
+
+message ReadRequest {
+	string index = 1;
+	string type = 2;
+	string id = 3;
+}
+
+message ReadResponse {
+	Document document = 1;
+}
+
+message UpdateRequest {
+	Document document = 1;
+}
+
+message UpdateResponse {
+}
+
+message SearchRequest {
+	string index = 1;
+	string type = 2;
+	string query = 3;
+	int64 limit = 4;
+	int64 offset = 5;
+}
+
+message SearchResponse {
+	repeated Document documents = 1;
+}
+
