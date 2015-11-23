@@ -5,16 +5,16 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/cockroachdb/cockroach/sql/driver"
+	_ "github.com/go-sql-driver/mysql"
 	log "github.com/golang/glog"
 	user "github.com/micro/explorer-srv/proto/user"
 )
 
 var (
 	db         *sql.DB
-	url        = "http://root@192.168.99.100:26257"
+	url        = "explorer:explorer@tcp(127.0.0.1:3306)/"
 	userSchema = `CREATE TABLE IF NOT EXISTS users (
-id varchar(255) primary key,
+id varchar(36) primary key,
 username varchar(255),
 email varchar(255),
 salt varchar(16),
@@ -29,22 +29,22 @@ username varchar(255),
 created integer,
 expires integer);`
 	q = map[string]string{
-		"delete": "DELETE from explorer.users where id = $1",
+		"delete": "DELETE from explorer.users where id = ?",
 		"create": `INSERT into explorer.users (
 				id, username, email, salt, password, created, updated) 
-				values ($1, $2, $3, $4, $5, $6, $7)`,
-		"update":                 "UPDATE explorer.users set username = $2, email = $2, updated = $3 where id = $1",
-		"updatePassword":         "UPDATE explorer.users set salt = $2, password = $3, updated = $4 where id = $1",
-		"read":                   "SELECT * from explorer.users where id = $1",
-		"list":                   "SELECT * from explorer.users limit $1 offset $2",
-		"searchUsername":         "SELECT * from explorer.users where username = $1 limit 1",
-		"searchEmail":            "SELECT * from explorer.users where email = $1 limit 1",
-		"searchUsernameAndEmail": "SELECT * from explorer.users where username = $1 and email = $2 limit 1",
+				values (?, ?, ?, ?, ?, ?, ?)`,
+		"update":                 "UPDATE explorer.users set username = ?, email = ?, updated = ? where id = ?",
+		"updatePassword":         "UPDATE explorer.users set salt = ?, password = ?, updated = ? where id = ?",
+		"read":                   "SELECT * from explorer.users where id = ?",
+		"list":                   "SELECT * from explorer.users limit ? offset ?",
+		"searchUsername":         "SELECT * from explorer.users where username = ? limit ? offset ?",
+		"searchEmail":            "SELECT * from explorer.users where email = ? limit ? offset ?",
+		"searchUsernameAndEmail": "SELECT * from explorer.users where username = ? and email = ? limit ? offset ?",
 
 		// users.sessions
-		"createSession": "INSERT into explorer.sessions (id, username, created, expires) values ($1, $2, $3, $4)",
-		"deleteSession": "DELETE from explorer.sessions where id = $1",
-		"readSession":   "SELECT * from explorer.sessions where id = $1",
+		"createSession": "INSERT into explorer.sessions (id, username, created, expires) values (?, ?, ?, ?)",
+		"deleteSession": "DELETE from explorer.sessions where id = ?",
+		"readSession":   "SELECT * from explorer.sessions where id = ?",
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -53,14 +53,14 @@ func init() {
 	var d *sql.DB
 	var err error
 
-	if d, err = sql.Open("cockroach", url); err != nil {
+	if d, err = sql.Open("mysql", url); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if _, err := d.Exec("CREATE DATABASE IF NOT EXISTS explorer"); err != nil {
 		log.Fatal(err)
 	}
 	d.Close()
-	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+	if d, err = sql.Open("mysql", url+"explorer"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err = d.Exec(userSchema); err != nil {
@@ -126,7 +126,7 @@ func Delete(id string) error {
 
 func Update(user *user.User) error {
 	user.Updated = time.Now().Unix()
-	_, err := st["update"].Exec(user.Id, user.Username, user.Email, user.Updated)
+	_, err := st["update"].Exec(user.Username, user.Email, user.Updated, user.Id)
 	return err
 }
 
@@ -186,7 +186,7 @@ func Search(username, email string, limit, offset int64) ([]*user.User, error) {
 }
 
 func UpdatePassword(id string, salt string, password string) error {
-	_, err := st["updatePassword"].Exec(id, salt, password, time.Now().Unix())
+	_, err := st["updatePassword"].Exec(salt, password, time.Now().Unix(), id)
 	return err
 }
 

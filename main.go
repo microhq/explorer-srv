@@ -2,6 +2,7 @@ package main
 
 import (
 	log "github.com/golang/glog"
+	org "github.com/micro/explorer-srv/organization/handler"
 	p "github.com/micro/explorer-srv/profile/handler"
 	se "github.com/micro/explorer-srv/search/handler"
 	s "github.com/micro/explorer-srv/service/handler"
@@ -45,6 +46,12 @@ func main() {
 	server.Handle(
 		server.NewHandler(
 			new(se.Search),
+		),
+	)
+
+	server.Handle(
+		server.NewHandler(
+			new(org.Organization),
 		),
 	)
 

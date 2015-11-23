@@ -3,6 +3,7 @@ package handler
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"strings"
 	"time"
 
 	user "github.com/micro/explorer-srv/proto/user"
@@ -41,6 +42,9 @@ func (s *User) Create(ctx context.Context, req *user.CreateRequest, rsp *user.Cr
 		return errors.InternalServerError("go.micro.srv.explorer.Create", err.Error())
 	}
 	pp := base64.StdEncoding.EncodeToString(h)
+
+	req.User.Username = strings.ToLower(req.User.Username)
+	req.User.Email = strings.ToLower(req.User.Email)
 	return db.Create(req.User, salt, pp)
 }
 
@@ -54,6 +58,8 @@ func (s *User) Read(ctx context.Context, req *user.ReadRequest, rsp *user.ReadRe
 }
 
 func (s *User) Update(ctx context.Context, req *user.UpdateRequest, rsp *user.UpdateResponse) error {
+	req.User.Username = strings.ToLower(req.User.Username)
+	req.User.Email = strings.ToLower(req.User.Email)
 	return db.Update(req.User)
 }
 
@@ -104,7 +110,10 @@ func (s *User) UpdatePassword(ctx context.Context, req *user.UpdatePasswordReque
 }
 
 func (s *User) Login(ctx context.Context, req *user.LoginRequest, rsp *user.LoginResponse) error {
-	salt, hashed, err := db.SaltAndPassword(req.Username, req.Email)
+	username := strings.ToLower(req.Username)
+	email := strings.ToLower(req.Email)
+
+	salt, hashed, err := db.SaltAndPassword(username, email)
 	if err != nil {
 		return err
 	}
@@ -120,7 +129,7 @@ func (s *User) Login(ctx context.Context, req *user.LoginRequest, rsp *user.Logi
 	// save session
 	sess := &user.Session{
 		Id:       random(128),
-		Username: req.Username,
+		Username: username,
 		Created:  time.Now().Unix(),
 		Expires:  time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}

@@ -5,16 +5,16 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/cockroachdb/cockroach/sql/driver"
+	_ "github.com/go-sql-driver/mysql"
 	log "github.com/golang/glog"
 	srv "github.com/micro/explorer-srv/proto/profile"
 )
 
 var (
 	db            *sql.DB
-	url           = "http://root@192.168.99.100:26257"
+	url           = "explorer:explorer@tcp(127.0.0.1:3306)/"
 	profileSchema = `CREATE TABLE IF NOT EXISTS profiles (
-id varchar(255) primary key,
+id varchar(36) primary key,
 name varchar(255),
 owner varchar(255),
 type integer,
@@ -26,16 +26,16 @@ created integer,
 updated integer,
 unique (name));`
 	q = map[string]string{
-		"delete": "DELETE from explorer.profiles where id = $1",
+		"delete": "DELETE from explorer.profiles where id = ?",
 		"create": `INSERT into explorer.profiles (
 				id, name, owner, type, display_name, blurb, url, location, created, updated) 
-				values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-		"update":             "UPDATE explorer.profiles set name = $2, owner = $3, type = $4, display_name = $5, blurb = $6, url = $7, location = $8, updated = $9 where id = $1",
-		"read":               "SELECT * from explorer.profiles where id = $1",
-		"list":               "SELECT * from explorer.profiles limit $1 offset $2",
-		"searchName":         "SELECT * from explorer.profiles where name = $1",
-		"searchOwner":        "SELECT * from explorer.profiles where owner = $1",
-		"searchNameAndOwner": "SELECT * from explorer.profiles where name = $1 and owner = $2",
+				values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		"update":             "UPDATE explorer.profiles set name = ?, owner = ?, type = ?, display_name = ?, blurb = ?, url = ?, location = ?, updated = ? where id = ?",
+		"read":               "SELECT * from explorer.profiles where id = ?",
+		"list":               "SELECT * from explorer.profiles limit ? offset ?",
+		"searchName":         "SELECT * from explorer.profiles where name = ? limit ? offset ?",
+		"searchOwner":        "SELECT * from explorer.profiles where owner = ? limit ? offset ?",
+		"searchNameAndOwner": "SELECT * from explorer.profiles where name = ? and owner = ? limit ? offset ?",
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -44,14 +44,14 @@ func init() {
 	var d *sql.DB
 	var err error
 
-	if d, err = sql.Open("cockroach", url); err != nil {
+	if d, err = sql.Open("mysql", url); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if _, err := d.Exec("CREATE DATABASE IF NOT EXISTS explorer"); err != nil {
 		log.Fatal(err)
 	}
 	d.Close()
-	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+	if d, err = sql.Open("mysql", url+"explorer"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err = d.Exec(profileSchema); err != nil {
@@ -83,8 +83,8 @@ func Delete(id string) error {
 
 func Update(profile *srv.Profile) error {
 	profile.Updated = time.Now().Unix()
-	_, err := st["update"].Exec(profile.Id, profile.Name, profile.Owner, profile.Type, profile.DisplayName,
-		profile.Blurb, profile.Url, profile.Location, profile.Updated)
+	_, err := st["update"].Exec(profile.Name, profile.Owner, profile.Type, profile.DisplayName,
+		profile.Blurb, profile.Url, profile.Location, profile.Updated, profile.Id)
 	return err
 }
 

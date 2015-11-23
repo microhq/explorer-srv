@@ -7,16 +7,16 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/cockroachdb/cockroach/sql/driver"
+	_ "github.com/go-sql-driver/mysql"
 	log "github.com/golang/glog"
 	srv "github.com/micro/explorer-srv/proto/service"
 )
 
 var (
 	db            *sql.DB
-	url           = "http://root@192.168.99.100:26257"
+	url           = "explorer:explorer@tcp(127.0.0.1:3306)/"
 	serviceSchema = `CREATE TABLE IF NOT EXISTS services (
-id varchar(255) primary key,
+id varchar(36) primary key,
 name varchar(255),
 owner varchar(255),
 description varchar(255),
@@ -27,8 +27,8 @@ readme text,
 metadata text,
 unique (name, owner))`
 	versionSchema = `CREATE TABLE IF NOT EXISTS service_versions (
-id varchar(255) primary key,
-service_id varchar(255),
+id varchar(36) primary key,
+service_id varchar(36),
 version varchar(255),
 api text,
 sources text,
@@ -38,23 +38,23 @@ created integer,
 updated integer,
 unique (service_id, version))`
 	q = map[string]string{
-		"create":             "INSERT into explorer.services (id, name, owner, description, created, updated, url, readme, metadata) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-		"delete":             "DELETE from explorer.services where id = $1",
-		"update":             "UPDATE explorer.services set name = $2, owner = $3, description = $4, updated = $5, url = $6, readme = $7, metadata = $8 where id = $1",
-		"read":               "SELECT * from explorer.services where id = $1",
-		"listAsc":            "SELECT * from explorer.services order by id asc limit $1 offset $2",
-		"listDesc":           "SELECT * from explorer.services order by id desc limit $1 offset $2",
-		"searchName":         "SELECT * from explorer.services where name = $1",
-		"searchOwner":        "SELECT * from explorer.services where owner = $1",
-		"searchNameAndOwner": "SELECT * from explorer.services where name = $1 and owner = $2",
+		"create":             "INSERT into explorer.services (id, name, owner, description, created, updated, url, readme, metadata) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"delete":             "DELETE from explorer.services where id = ?",
+		"update":             "UPDATE explorer.services set name = ?, owner = ?, description = ?, updated = ?, url = ?, readme = ?, metadata = ? where id = ?",
+		"read":               "SELECT * from explorer.services where id = ?",
+		"listAsc":            "SELECT * from explorer.services order by id asc limit ? offset ?",
+		"listDesc":           "SELECT * from explorer.services order by id desc limit ? offset ?",
+		"searchName":         "SELECT * from explorer.services where name = ? limit ? offset ?",
+		"searchOwner":        "SELECT * from explorer.services where owner = ? limit ? offset ?",
+		"searchNameAndOwner": "SELECT * from explorer.services where name = ? and owner = ? limit ? offset ?",
 
 		// version
-		"createVersion":  "INSERT into explorer.service_versions (id, service_id, version, api, sources, dependencies, metadata, created, updated) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
-		"deleteVersion":  "DELETE from explorer.service_versions where id = $1",
-		"updateVersion":  "UPDATE explorer.service_versions set version = $2, api = $3, sources = $4, dependencies = $5, metadata = $6, updated = $7 where id = $1",
-		"readVersion":    "SELECT * from explorer.service_versions where id = $1",
-		"searchVersion":  "SELECT * from explorer.service_versions where service_id = $1 and version = $2",
-		"searchVersions": "SELECT * from explorer.service_versions where service_id = $1",
+		"createVersion":  "INSERT into explorer.service_versions (id, service_id, version, api, sources, dependencies, metadata, created, updated) values (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"deleteVersion":  "DELETE from explorer.service_versions where id = ?",
+		"updateVersion":  "UPDATE explorer.service_versions set version = ?, api = ?, sources = ?, dependencies = ?, metadata = ?, updated = ? where id = ?",
+		"readVersion":    "SELECT * from explorer.service_versions where id = ?",
+		"searchVersion":  "SELECT * from explorer.service_versions where service_id = ? and version = ? limit ? offset ?",
+		"searchVersions": "SELECT * from explorer.service_versions where service_id = ? limit ? offset ?",
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -63,14 +63,14 @@ func init() {
 	var d *sql.DB
 	var err error
 
-	if d, err = sql.Open("cockroach", url); err != nil {
+	if d, err = sql.Open("mysql", url); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if _, err := d.Exec("CREATE DATABASE IF NOT EXISTS explorer"); err != nil {
 		log.Fatal(err)
 	}
 	d.Close()
-	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+	if d, err = sql.Open("mysql", url+"explorer"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err = d.Exec(serviceSchema); err != nil {
@@ -114,7 +114,7 @@ func Update(service *srv.Service) error {
 	}
 	service.Updated = time.Now().Unix()
 	service.Readme = base64.StdEncoding.EncodeToString([]byte(service.Readme))
-	_, err = st["update"].Exec(service.Id, service.Name, service.Owner, service.Description, service.Updated, service.Url, service.Readme, string(md))
+	_, err = st["update"].Exec(service.Name, service.Owner, service.Description, service.Updated, service.Url, service.Readme, string(md), service.Id)
 	return err
 }
 

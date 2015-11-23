@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/cockroachdb/cockroach/sql/driver"
 	srv "github.com/micro/explorer-srv/proto/service"
 )
 
@@ -56,7 +55,7 @@ func UpdateVersion(v *srv.Version) error {
 		return err
 	}
 	v.Updated = time.Now().Unix()
-	_, err = st["updateVersion"].Exec(v.Id, v.Version, string(api), string(src), string(dep), string(md), v.Updated)
+	_, err = st["updateVersion"].Exec(v.Version, string(api), string(src), string(dep), string(md), v.Updated, v.Id)
 	return err
 }
 

@@ -5,32 +5,32 @@ import (
 	"errors"
 	"time"
 
-	_ "github.com/cockroachdb/cockroach/sql/driver"
+	_ "github.com/go-sql-driver/mysql"
 	log "github.com/golang/glog"
 	token "github.com/micro/explorer-srv/proto/token"
 )
 
 var (
 	db          *sql.DB
-	url         = "http://root@192.168.99.100:26257"
+	url         = "explorer:explorer@tcp(127.0.0.1:3306)/"
 	tokenSchema = `CREATE TABLE IF NOT EXISTS tokens (
-id varchar(255) primary key,
-namespace varchar(255),
-name varchar(255),
+id varchar(36) primary key,
+namespace varchar(64),
+name varchar(64),
 created integer,
 updated integer,
 unique (namespace, name));`
 	q = map[string]string{
-		"delete": "DELETE from explorer.tokens where id = $1",
+		"delete": "DELETE from explorer.tokens where id = ?",
 		"create": `INSERT into explorer.tokens (
 				id, namespace, name, created, updated) 
-				values ($1, $2, $3, $4, $5)`,
-		"update":                 "UPDATE explorer.tokens set namespace = $2, name = $2, updated = $3 where id = $1",
-		"read":                   "SELECT * from explorer.tokens where id = $1",
-		"list":                   "SELECT * from explorer.tokens limit $1 offset $2",
-		"searchNamespace":        "SELECT * from explorer.tokens where namespace = $1 limit 1",
-		"searchName":             "SELECT * from explorer.tokens where name = $1 limit 1",
-		"searchNamespaceAndName": "SELECT * from explorer.tokens where namespace = $1 and name = $2 limit 1",
+				values (?, ?, ?, ?, ?)`,
+		"update":                 "UPDATE explorer.tokens set namespace = ?, name = ?, updated = ? where id = ?",
+		"read":                   "SELECT * from explorer.tokens where id = ?",
+		"list":                   "SELECT * from explorer.tokens limit ? offset ?",
+		"searchNamespace":        "SELECT * from explorer.tokens where namespace = ? limit ? offset ?",
+		"searchName":             "SELECT * from explorer.tokens where name = ? limit ? offset ?",
+		"searchNamespaceAndName": "SELECT * from explorer.tokens where namespace = ? and name = ? limit ? offset ?",
 	}
 	st = map[string]*sql.Stmt{}
 )
@@ -39,14 +39,14 @@ func init() {
 	var d *sql.DB
 	var err error
 
-	if d, err = sql.Open("cockroach", url); err != nil {
+	if d, err = sql.Open("mysql", url); err != nil {
 		log.Fatal(err)
 	}
-	if _, err := d.Exec("CREATE DATABASE explorer"); err != nil && err.Error() != `database "explorer" already exists` {
+	if _, err := d.Exec("CREATE DATABASE IF NOT EXISTS explorer"); err != nil {
 		log.Fatal(err)
 	}
 	d.Close()
-	if d, err = sql.Open("cockroach", url+"?database=explorer"); err != nil {
+	if d, err = sql.Open("mysql", url+"explorer"); err != nil {
 		log.Fatal(err)
 	}
 	if _, err = d.Exec(tokenSchema); err != nil {
@@ -77,7 +77,7 @@ func Delete(id string) error {
 
 func Update(token *token.Token) error {
 	token.Updated = time.Now().Unix()
-	_, err := st["update"].Exec(token.Id, token.Namespace, token.Name, token.Updated)
+	_, err := st["update"].Exec(token.Namespace, token.Name, token.Updated, token.Id)
 	return err
 }
 
