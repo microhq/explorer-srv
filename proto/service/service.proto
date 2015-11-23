@@ -10,6 +10,7 @@ message Service {
 	string url = 7;
 	string readme = 8;
 	map<string, string> metadata = 9;
+	bool private = 10;
 }
 
 message Version {
@@ -22,6 +23,7 @@ message Version {
 	repeated Source sources = 7;
 	repeated Dependency dependencies = 8;
 	map<string, string> metadata = 9;
+	bool private = 10;
 }
 
 message API {

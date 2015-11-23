@@ -28,7 +28,7 @@ func CreateVersion(v *srv.Version) error {
 	}
 	v.Created = time.Now().Unix()
 	v.Updated = time.Now().Unix()
-	_, err = st["createVersion"].Exec(v.Id, v.ServiceId, v.Version, string(api), string(src), string(dep), string(md), v.Created, v.Updated)
+	_, err = st["createVersion"].Exec(v.Id, v.ServiceId, v.Version, string(api), string(src), string(dep), string(md), v.Created, v.Updated, v.Private)
 	return err
 }
 
@@ -55,7 +55,7 @@ func UpdateVersion(v *srv.Version) error {
 		return err
 	}
 	v.Updated = time.Now().Unix()
-	_, err = st["updateVersion"].Exec(v.Version, string(api), string(src), string(dep), string(md), v.Updated, v.Id)
+	_, err = st["updateVersion"].Exec(v.Version, string(api), string(src), string(dep), string(md), v.Updated, v.Private, v.Id)
 	return err
 }
 
@@ -64,7 +64,7 @@ func ReadVersion(id string) (*srv.Version, error) {
 	v := &srv.Version{}
 
 	r := st["readVersion"].QueryRow(id)
-	if err := r.Scan(&v.Id, &v.ServiceId, &v.Version, &api, &src, &dep, &md, &v.Created, &v.Updated); err != nil {
+	if err := r.Scan(&v.Id, &v.ServiceId, &v.Version, &api, &src, &dep, &md, &v.Created, &v.Updated, &v.Private); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("not found")
 		}
@@ -111,7 +111,7 @@ func SearchVersion(serviceId, version string, limit, offset int64) ([]*srv.Versi
 	for r.Next() {
 		var md, src, dep, api string
 		v := &srv.Version{}
-		if err := r.Scan(&v.Id, &v.ServiceId, &v.Version, &api, &src, &dep, &md, &v.Created, &v.Updated); err != nil {
+		if err := r.Scan(&v.Id, &v.ServiceId, &v.Version, &api, &src, &dep, &md, &v.Created, &v.Updated, &v.Private); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, errors.New("not found")
 			}

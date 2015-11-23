@@ -53,6 +53,7 @@ type Service struct {
 	Url         string            `protobuf:"bytes,7,opt,name=url" json:"url,omitempty"`
 	Readme      string            `protobuf:"bytes,8,opt,name=readme" json:"readme,omitempty"`
 	Metadata    map[string]string `protobuf:"bytes,9,rep,name=metadata" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Private     bool              `protobuf:"varint,10,opt,name=private" json:"private,omitempty"`
 }
 
 func (m *Service) Reset()         { *m = Service{} }
@@ -76,6 +77,7 @@ type Version struct {
 	Sources      []*Source         `protobuf:"bytes,7,rep,name=sources" json:"sources,omitempty"`
 	Dependencies []*Dependency     `protobuf:"bytes,8,rep,name=dependencies" json:"dependencies,omitempty"`
 	Metadata     map[string]string `protobuf:"bytes,9,rep,name=metadata" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Private      bool              `protobuf:"varint,10,opt,name=private" json:"private,omitempty"`
 }
 
 func (m *Version) Reset()         { *m = Version{} }

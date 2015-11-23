@@ -16,7 +16,7 @@ func CreateMember(member *org.Member) error {
 	if err != nil {
 		return err
 	}
-	_, err = st["createMember"].Exec(member.Id, member.OrgId, member.Username, string(b), member.Created, member.Updated)
+	_, err = st["createMember"].Exec(member.Id, member.OrgName, member.Username, string(b), member.Created, member.Updated)
 	return err
 }
 
@@ -39,7 +39,7 @@ func ReadMember(id string) (*org.Member, error) {
 
 	r := st["readMember"].QueryRow(id)
 	var roles string
-	if err := r.Scan(&member.Id, &member.OrgId, &member.Username, &roles, &member.Created, &member.Updated); err != nil {
+	if err := r.Scan(&member.Id, &member.OrgName, &member.Username, &roles, &member.Created, &member.Updated); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, errors.New("not found")
 		}
@@ -52,16 +52,16 @@ func ReadMember(id string) (*org.Member, error) {
 	return member, nil
 }
 
-func SearchMembers(orgId, username string, limit, offset int64) ([]*org.Member, error) {
+func SearchMembers(orgName, username string, limit, offset int64) ([]*org.Member, error) {
 	var r *sql.Rows
 	var err error
 
-	if len(orgId) > 0 && len(username) > 0 {
-		r, err = st["searchUsernameAndOrg"].Query(orgId, username, limit, offset)
+	if len(orgName) > 0 && len(username) > 0 {
+		r, err = st["searchUsernameAndOrg"].Query(orgName, username, limit, offset)
 	} else if len(username) > 0 {
 		r, err = st["searchUsername"].Query(username, limit, offset)
-	} else if len(orgId) > 0 {
-		r, err = st["searchOrg"].Query(orgId, limit, offset)
+	} else if len(orgName) > 0 {
+		r, err = st["searchOrg"].Query(orgName, limit, offset)
 	} else {
 		return nil, errors.New("org id and username cannot be blank")
 	}
@@ -76,7 +76,7 @@ func SearchMembers(orgId, username string, limit, offset int64) ([]*org.Member, 
 	for r.Next() {
 		member := &org.Member{}
 		var roles string
-		if err := r.Scan(&member.Id, &member.OrgId, &member.Username, &roles, &member.Created, &member.Updated); err != nil {
+		if err := r.Scan(&member.Id, &member.OrgName, &member.Username, &roles, &member.Created, &member.Updated); err != nil {
 			if err == sql.ErrNoRows {
 				return nil, errors.New("not found")
 			}

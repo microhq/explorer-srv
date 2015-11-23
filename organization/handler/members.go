@@ -42,7 +42,7 @@ func (s *Organization) DeleteMember(ctx context.Context, req *org.DeleteMemberRe
 }
 
 func (s *Organization) SearchMembers(ctx context.Context, req *org.SearchMembersRequest, rsp *org.SearchMembersResponse) error {
-	members, err := db.SearchMembers(req.OrgId, req.Username, req.Limit, req.Offset)
+	members, err := db.SearchMembers(req.OrgName, req.Username, req.Limit, req.Offset)
 	if err != nil {
 		return errors.InternalServerError("go.micro.srv.organization.SearchMember", err.Error())
 	}

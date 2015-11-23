@@ -54,7 +54,7 @@ func (*Organization) ProtoMessage()    {}
 
 type Member struct {
 	Id       string   `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
-	OrgId    string   `protobuf:"bytes,2,opt,name=orgId" json:"orgId,omitempty"`
+	OrgName  string   `protobuf:"bytes,2,opt,name=orgName" json:"orgName,omitempty"`
 	Username string   `protobuf:"bytes,3,opt,name=username" json:"username,omitempty"`
 	Roles    []string `protobuf:"bytes,4,rep,name=roles" json:"roles,omitempty"`
 	Created  int64    `protobuf:"varint,5,opt,name=created" json:"created,omitempty"`
@@ -256,7 +256,7 @@ func (m *UpdateMemberResponse) String() string { return proto.CompactTextString(
 func (*UpdateMemberResponse) ProtoMessage()    {}
 
 type SearchMembersRequest struct {
-	OrgId    string `protobuf:"bytes,1,opt,name=orgId" json:"orgId,omitempty"`
+	OrgName  string `protobuf:"bytes,1,opt,name=orgName" json:"orgName,omitempty"`
 	Username string `protobuf:"bytes,2,opt,name=username" json:"username,omitempty"`
 	Limit    int64  `protobuf:"varint,3,opt,name=limit" json:"limit,omitempty"`
 	Offset   int64  `protobuf:"varint,4,opt,name=offset" json:"offset,omitempty"`

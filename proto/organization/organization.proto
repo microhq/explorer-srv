@@ -11,7 +11,7 @@ message Organization {
 
 message Member {
 	string id = 1;
-	string orgId = 2;
+	string orgName = 2;
 	string username = 3;
 	repeated string roles = 4;
 	int64 created = 5;
@@ -89,7 +89,7 @@ message UpdateMemberResponse {
 }
 
 message SearchMembersRequest {
-	string orgId = 1; 
+	string orgName = 1; 
 	string username = 2; 
 	int64 limit = 3;
 	int64 offset = 4;

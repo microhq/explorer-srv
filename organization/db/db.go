@@ -23,12 +23,12 @@ updated integer,
 unique (name));`
 	membersSchema = `CREATE TABLE IF NOT EXISTS organization_members (
 id varchar(36) primary key,
-organization_id varchar(36) ,
+organization_name varchar(36) ,
 username varchar(36),
 roles text,
 created integer,
 updated integer,
-unique (organization_id, username));`
+unique (organization_name, username));`
 
 	q = map[string]string{
 		"delete": "DELETE from explorer.organizations where id = ?",
@@ -44,13 +44,13 @@ unique (organization_id, username));`
 
 		"deleteMember": "DELETE from explorer.organization_members where id = ?",
 		"createMember": `INSERT into explorer.organization_members (
-				id, organization_id, username, roles, created, updated) 
+				id, organization_name, username, roles, created, updated) 
 				values (?, ?, ?, ?, ?, ?)`,
 		"updateMember":         "UPDATE explorer.organization_members set roles = ?, updated = ? where id = ?",
 		"readMember":           "SELECT * from explorer.organization_members where id = ?",
 		"searchUsername":       "SELECT * from explorer.organization_members where username = ? limit ? offset ?",
-		"searchOrg":            "SELECT * from explorer.organization_members where organization_id = ? limit ? offset ?",
-		"searchUsernameAndOrg": "SELECT * from explorer.organization_members where organization_id = ? and username = ? limit ? offset ?",
+		"searchOrg":            "SELECT * from explorer.organization_members where organization_name = ? limit ? offset ?",
+		"searchUsernameAndOrg": "SELECT * from explorer.organization_members where organization_name = ? and username = ? limit ? offset ?",
 	}
 	st = map[string]*sql.Stmt{}
 )
